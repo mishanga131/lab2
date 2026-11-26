@@ -1,17 +1,14 @@
 import { ref, watch } from 'vue'
 import type { AppNotification, NotificationType } from '../types'
 
-const STORAGE_KEY = 'notifications-history'
-
-// історію беремо з sessionStorage, якщо вона там вже є
+// беремо збережену історію з sessionStorage
 function loadHistory(): AppNotification[] {
+  const saved = sessionStorage.getItem('history')
+  if (!saved) {
+    return []
+  }
   try {
-    const saved = sessionStorage.getItem(STORAGE_KEY)
-    const data = saved ? JSON.parse(saved) : []
-    // якщо там не масив — значить дані зіпсовані
-    if (!Array.isArray(data)) return []
-    // залишаємо тільки нормальні записи
-    return data.filter((item) => item && typeof item.id === 'number' && typeof item.text === 'string')
+    return JSON.parse(saved)
   } catch {
     return []
   }
@@ -20,26 +17,14 @@ function loadHistory(): AppNotification[] {
 const toasts = ref<AppNotification[]>([])
 const history = ref<AppNotification[]>(loadHistory())
 
-// щоб id не повторювались після перезавантаження сторінки
-let nextId = 1
-for (const item of history.value) {
-  if (item.id >= nextId) nextId = item.id + 1
-}
-
-// при кожній зміні історії зберігаємо її
+// зберігаємо історію щоразу, коли вона змінюється
 watch(
   history,
-  (value) => {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(value))
-    } catch {
-      // сховище недоступне — просто не зберігаємо
-    }
+  () => {
+    sessionStorage.setItem('history', JSON.stringify(history.value))
   },
   { deep: true },
 )
-
-const timers: Record<number, ReturnType<typeof setTimeout>> = {}
 
 function getTime(): string {
   const d = new Date()
@@ -50,9 +35,8 @@ function getTime(): string {
 }
 
 function notify(type: NotificationType, text: string) {
-  const id = nextId++
   const item: AppNotification = {
-    id,
+    id: Date.now(),
     type,
     text,
     time: getTime(),
@@ -61,21 +45,13 @@ function notify(type: NotificationType, text: string) {
   toasts.value.push(item)
   history.value.push(item)
 
-  // якщо сповіщень забагато — прибираємо найстаріше
-  if (toasts.value.length > 5) {
-    remove(toasts.value[0].id)
-  }
-
-  timers[id] = setTimeout(() => {
-    remove(id)
+  // через 3.5 секунди сповіщення зникає само
+  setTimeout(() => {
+    remove(item.id)
   }, 3500)
 }
 
 function remove(id: number) {
-  if (timers[id]) {
-    clearTimeout(timers[id])
-    delete timers[id]
-  }
   toasts.value = toasts.value.filter((item) => item.id !== id)
 }
 
