@@ -9,7 +9,9 @@ function loadHistory(): AppNotification[] {
     const saved = sessionStorage.getItem(STORAGE_KEY)
     const data = saved ? JSON.parse(saved) : []
     // якщо там не масив — значить дані зіпсовані
-    return Array.isArray(data) ? data : []
+    if (!Array.isArray(data)) return []
+    // залишаємо тільки нормальні записи
+    return data.filter((item) => item && typeof item.id === 'number' && typeof item.text === 'string')
   } catch {
     return []
   }
@@ -19,7 +21,10 @@ const toasts = ref<AppNotification[]>([])
 const history = ref<AppNotification[]>(loadHistory())
 
 // щоб id не повторювались після перезавантаження сторінки
-let nextId = history.value.length > 0 ? history.value[history.value.length - 1].id + 1 : 1
+let nextId = 1
+for (const item of history.value) {
+  if (item.id >= nextId) nextId = item.id + 1
+}
 
 // при кожній зміні історії зберігаємо її
 watch(
