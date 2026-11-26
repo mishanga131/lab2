@@ -49,6 +49,11 @@ function notify(type: NotificationType, text: string) {
   toasts.value.push(item)
   history.value.push(item)
 
+  // якщо сповіщень забагато — прибираємо найстаріше
+  if (toasts.value.length > 5) {
+    remove(toasts.value[0].id)
+  }
+
   timers[id] = setTimeout(() => {
     remove(id)
   }, 3500)
