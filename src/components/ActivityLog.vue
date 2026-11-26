@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useNotifications } from '../composables/useNotifications'
 
 const { history, clearHistory } = useNotifications()
 const isOpen = ref(true)
+
+// нові записи зверху, щоб їх було видно без прокрутки
+const sortedHistory = computed(() => [...history.value].reverse())
 </script>
 
 <template>
@@ -23,7 +26,7 @@ const isOpen = ref(true)
     <div v-show="isOpen" class="body">
       <p v-if="history.length === 0" class="empty">Історія порожня</p>
       <ul v-else>
-        <li v-for="item in history" :key="item.id">
+        <li v-for="item in sortedHistory" :key="item.id">
           {{ item.time }} — [<span class="type">{{ item.type }}</span>] {{ item.text }}
         </li>
       </ul>
