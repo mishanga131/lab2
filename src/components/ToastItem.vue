@@ -31,7 +31,7 @@ function closeToast() {
       </div>
       <p class="text">{{ item.text }}</p>
     </div>
-    <button type="button" class="close-btn" @click="closeToast">×</button>
+    <button type="button" class="close-btn" title="Закрити" aria-label="Закрити" @click="closeToast">×</button>
   </div>
 </template>
 
