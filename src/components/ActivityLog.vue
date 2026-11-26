@@ -14,7 +14,9 @@ const isOpen = ref(true)
         <button type="button" @click="isOpen = !isOpen">
           {{ isOpen ? 'Згорнути' : 'Розгорнути' }}
         </button>
-        <button type="button" @click="clearHistory">Очистити історію</button>
+        <button type="button" :disabled="history.length === 0" @click="clearHistory">
+          Очистити історію
+        </button>
       </div>
     </div>
 
@@ -62,8 +64,15 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .body {
   margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .empty {
