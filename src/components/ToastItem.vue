@@ -41,6 +41,7 @@ function closeToast() {
   align-items: flex-start;
   gap: 8px;
   width: 300px;
+  max-width: calc(100vw - 32px);
   padding: 10px 12px;
   background: #fff;
   border: 1px solid #ddd;
@@ -107,6 +108,7 @@ function closeToast() {
 
 .text {
   margin: 0;
+  word-break: break-word;
   font-size: 14px;
 }
 

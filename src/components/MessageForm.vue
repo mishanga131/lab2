@@ -30,6 +30,7 @@ function send() {
           v-model="text"
           type="text"
           placeholder="Текст повідомлення"
+          maxlength="100"
           @input="emptyError = false"
         />
         <select v-model="type">
