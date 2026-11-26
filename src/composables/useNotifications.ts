@@ -7,7 +7,9 @@ const STORAGE_KEY = 'notifications-history'
 function loadHistory(): AppNotification[] {
   try {
     const saved = sessionStorage.getItem(STORAGE_KEY)
-    return saved ? JSON.parse(saved) : []
+    const data = saved ? JSON.parse(saved) : []
+    // якщо там не масив — значить дані зіпсовані
+    return Array.isArray(data) ? data : []
   } catch {
     return []
   }
@@ -23,10 +25,15 @@ let nextId = history.value.length > 0 ? history.value[history.value.length - 1].
 watch(
   history,
   (value) => {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(value))
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(value))
+    } catch {
+      // сховище недоступне — просто не зберігаємо
+    }
   },
   { deep: true },
 )
+
 const timers: Record<number, ReturnType<typeof setTimeout>> = {}
 
 function getTime(): string {
